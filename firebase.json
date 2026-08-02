@@ -1,0 +1,31 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "restaurantbookingapp-a545e",
+          "appId": "1:477889588152:android:034c56052989decee3bd4d",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "restaurantbookingapp-a545e",
+          "configurations": {
+            "android": "1:477889588152:android:034c56052989decee3bd4d",
+            "ios": "1:477889588152:ios:5232cb8b75889e02e3bd4d",
+            "macos": "1:477889588152:ios:5232cb8b75889e02e3bd4d",
+            "web": "1:477889588152:web:7a6c9d54efe86f35e3bd4d",
+            "windows": "1:477889588152:web:3eeb843e6517bb2ee3bd4d"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "database": "(default)",
+    "location": "nam5",
+    "rules": "firebase deploy --only firestore:rules",
+    "indexes": "firestore.indexes.json"
+  }
+}
