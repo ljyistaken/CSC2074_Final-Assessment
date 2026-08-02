@@ -6,8 +6,17 @@ import '../theme/app_theme.dart';
 import '../utils/date_formatters.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_scaffold.dart';
+import '../widgets/choice_chip_group.dart';
 import 'booking_updated_screen.dart';
 
+/// Deliberately mirrors select_date_screen.dart + select_time_party_screen.dart
+/// (same inline CalendarDatePicker, same hour/party-size/table-type chips,
+/// same special request field) instead of using system date/time pickers.
+/// The system `showTimePicker` dial doesn't fit well inside this app's
+/// fixed-width layout frame and implies minute-level precision the app
+/// doesn't actually support (bookings are hour slots only) -- reusing the
+/// exact controls from the booking flow keeps editing consistent with
+/// creating a booking and avoids both problems.
 class ModifyBookingScreen extends StatefulWidget {
   const ModifyBookingScreen({super.key, required this.bookingId});
   final String bookingId;
@@ -17,6 +26,14 @@ class ModifyBookingScreen extends StatefulWidget {
 }
 
 class _ModifyBookingScreenState extends State<ModifyBookingScreen> {
+  static const hours = [10, 11, 12, 13, 14, 15, 18, 19, 20];
+  static const tableTypes = [
+    'Any available',
+    'Window seat',
+    'Indoor',
+    'Outdoor',
+  ];
+
   late Booking original;
   late DateTime date;
   late int hour;
@@ -33,7 +50,11 @@ class _ModifyBookingScreenState extends State<ModifyBookingScreen> {
     original = BookingScope.of(context)
         .bookings
         .firstWhere((item) => item.id == widget.bookingId);
-    date = original.dateTime;
+    date = DateTime(
+      original.dateTime.year,
+      original.dateTime.month,
+      original.dateTime.day,
+    );
     hour = original.dateTime.hour;
     partySize = original.partySize;
     tableType = original.tableType;
@@ -58,91 +79,73 @@ class _ModifyBookingScreenState extends State<ModifyBookingScreen> {
         children: [
           Text('Modify Booking',
               style: Theme.of(context).textTheme.headlineMedium),
-          const SizedBox(height: 28),
-          _EditTile(
-            label: 'Change Date',
-            value: fullDate(date),
-            onTap: pickDate,
+          const SizedBox(height: 24),
+          Text('Date', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 10),
+          CalendarDatePicker(
+            initialDate: date,
+            firstDate: DateTime.now(),
+            lastDate: DateTime.now().add(const Duration(days: 365)),
+            onDateChanged: (value) => setState(
+              () => date = DateTime(value.year, value.month, value.day),
+            ),
           ),
-          _EditTile(
-            label: 'Change Time',
-            value: timeLabel(hour),
-            onTap: pickTime,
+          const SizedBox(height: 24),
+          Text('Time', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: hours
+                .map((value) => AppChoiceChip(
+                      label: timeLabel(value),
+                      value: value,
+                      selectedValue: hour,
+                      onSelected: (value) => setState(() => hour = value),
+                    ))
+                .toList(),
           ),
-          _EditTile(
-            label: 'Change Party Size',
-            value: '$partySize People',
-            onTap: pickPartySize,
+          const SizedBox(height: 30),
+          Text('Party Size', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 12,
+            runSpacing: 8,
+            children: [1, 2, 3, 4, 5]
+                .map((size) => AppChoiceChip(
+                      label: size == 5 ? '5+' : '$size',
+                      value: size,
+                      selectedValue: partySize,
+                      onSelected: (value) => setState(() => partySize = value),
+                    ))
+                .toList(),
           ),
-          _EditTile(
-            label: 'Change Table Type',
-            value: tableType,
-            onTap: pickTableType,
+          const SizedBox(height: 30),
+          Text('Table Preference',
+              style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 9,
+            runSpacing: 8,
+            children: tableTypes
+                .map((type) => AppChoiceChip(
+                      label: type,
+                      value: type,
+                      selectedValue: tableType,
+                      onSelected: (value) => setState(() => tableType = value),
+                    ))
+                .toList(),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           TextField(
             controller: requestController,
-            decoration: const InputDecoration(labelText: 'Special Request'),
+            maxLength: 120,
+            decoration: const InputDecoration(
+              labelText: 'Special Request (optional)',
+              hintText: 'E.g. birthday setup or allergy note',
+            ),
           ),
         ],
-      ),
-    );
-  }
-
-  Future<void> pickDate() async {
-    final value = await showDatePicker(
-      context: context,
-      initialDate: date,
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-    );
-    if (value != null) setState(() => date = value);
-  }
-
-  Future<void> pickTime() async {
-    final value = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay(hour: hour, minute: 0),
-    );
-    if (value != null) setState(() => hour = value.hour);
-  }
-
-  Future<void> pickPartySize() async {
-    final value = await _select<int>(
-        'Party Size', [1, 2, 3, 4, 5, 6], (value) => '$value People');
-    if (value != null) setState(() => partySize = value);
-  }
-
-  Future<void> pickTableType() async {
-    final value = await _select<String>(
-      'Table Type',
-      ['Any available', 'Window seat', 'Indoor', 'Outdoor'],
-      (value) => value,
-    );
-    if (value != null) setState(() => tableType = value);
-  }
-
-  Future<T?> _select<T>(
-      String title, List<T> values, String Function(T) label) {
-    return showModalBottomSheet<T>(
-      context: context,
-      builder: (context) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: Theme.of(context).textTheme.titleLarge),
-              const SizedBox(height: 12),
-              for (final value in values)
-                ListTile(
-                  title: Text(label(value)),
-                  onTap: () => Navigator.pop(context, value),
-                ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -189,45 +192,6 @@ class _ModifyBookingScreenState extends State<ModifyBookingScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => const BookingUpdatedScreen()),
-    );
-  }
-}
-
-class _EditTile extends StatelessWidget {
-  const _EditTile({
-    required this.label,
-    required this.value,
-    required this.onTap,
-  });
-  final String label;
-  final String value;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: ListTile(
-        onTap: onTap,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-          side: const BorderSide(color: AppColors.border),
-        ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-        title: Text(label,
-            style: const TextStyle(
-                color: AppColors.muted, fontWeight: FontWeight.w800)),
-        trailing: SizedBox(
-          width: 150,
-          child: Text(
-            value,
-            textAlign: TextAlign.end,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontWeight: FontWeight.w800),
-          ),
-        ),
-      ),
     );
   }
 }

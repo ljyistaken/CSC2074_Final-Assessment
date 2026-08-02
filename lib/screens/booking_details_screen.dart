@@ -47,7 +47,7 @@ class BookingDetailsScreen extends StatelessWidget {
               style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: 12),
           Text(
-            '${timeLabel(booking.dateTime.hour)} · ${booking.partySize} People',
+            '${timeLabel(booking.dateTime.hour)} · ${partySizeLabel(booking.partySize)}',
             style: Theme.of(context)
                 .textTheme
                 .bodyLarge
@@ -61,7 +61,8 @@ class BookingDetailsScreen extends StatelessWidget {
           const SizedBox(height: 22),
           _DetailRow(label: 'Date', value: fullDate(booking.dateTime)),
           _DetailRow(label: 'Time', value: timeLabel(booking.dateTime.hour)),
-          _DetailRow(label: 'Party Size', value: '${booking.partySize} People'),
+          _DetailRow(
+              label: 'Party Size', value: partySizeLabel(booking.partySize)),
           _DetailRow(label: 'Table Type', value: booking.tableType),
           _DetailRow(
             label: 'Special Request',

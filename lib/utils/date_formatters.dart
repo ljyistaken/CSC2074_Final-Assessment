@@ -33,3 +33,12 @@ String timeLabel(int hour) {
   final period = hour >= 12 ? 'PM' : 'AM';
   return '${value.toString().padLeft(2, '0')}:00 $period';
 }
+
+/// Renders a stored party-size int back into the same label shown on the
+/// selection chips (see select_time_party_screen.dart / modify_booking_
+/// screen.dart), so "5+" isn't silently displayed as a plain "5" anywhere
+/// a booking's party size is shown as text.
+String partySizeLabel(int size) {
+  if (size >= 5) return '5+ People';
+  return size == 1 ? '1 Person' : '$size People';
+}

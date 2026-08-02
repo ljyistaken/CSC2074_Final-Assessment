@@ -77,9 +77,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
           _SummaryRow(label: 'Date', value: fullDate(controller.selectedDate)),
           _SummaryRow(label: 'Time', value: timeLabel(controller.selectedHour)),
           _SummaryRow(
-              label: 'Party Size',
-              value:
-                  '${controller.partySize}${controller.partySize == 1 ? ' Person' : ' People'}'),
+              label: 'Party Size', value: partySizeLabel(controller.partySize)),
           _SummaryRow(label: 'Table Type', value: controller.tableType),
           _SummaryRow(
             label: 'Special Request',
@@ -87,7 +85,6 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                 ? '—'
                 : controller.specialRequest,
           ),
-          const _SummaryRow(label: 'Total', value: 'RM0.00', strong: true),
         ],
       ),
     );

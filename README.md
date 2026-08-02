@@ -21,3 +21,7 @@ Add / Edit / Delete restaurants
 All info saves into database, even images!
 
 To add an admin account go to the account in Firestore change "User" to "Admin"
+
+Fixes to this patch:
+Inconsistent entries with Booking Page and Modify Booking Page
+Overhaul Modify Booking Page with new fields and options

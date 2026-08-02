@@ -16,7 +16,7 @@ class BookingController extends ChangeNotifier {
   int selectedHour = 13;
   int partySize = 2;
   String tableType = 'Any available';
-  String specialRequest = 'Window seat';
+  String specialRequest = '';
   bool isLoading = false;
   String? errorMessage;
 
@@ -51,7 +51,7 @@ class BookingController extends ChangeNotifier {
     selectedHour = 13;
     partySize = 2;
     tableType = 'Any available';
-    specialRequest = 'Window seat';
+    specialRequest = '';
     isLoading = false;
     errorMessage = null;
     notifyListeners();

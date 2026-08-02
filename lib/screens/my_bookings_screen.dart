@@ -190,7 +190,7 @@ class _BookingCard extends StatelessWidget {
                           fontSize: 17, fontWeight: FontWeight.w800)),
                   const SizedBox(height: 6),
                   Text(
-                    '${timeLabel(booking.dateTime.hour)} · ${booking.partySize} People',
+                    '${timeLabel(booking.dateTime.hour)} · ${partySizeLabel(booking.partySize)}',
                     style: const TextStyle(color: AppColors.muted),
                   ),
                   const SizedBox(height: 12),
