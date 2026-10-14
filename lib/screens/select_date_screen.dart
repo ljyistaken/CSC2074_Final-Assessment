@@ -13,14 +13,26 @@ class SelectDateScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = BookingScope.of(context);
-    final date = controller.selectedDate;
+    // Never hand the calendar a date before its firstDate -- it asserts.
+    // Covers a stale selection (e.g. the app left open past midnight).
+    final today = DateUtils.dateOnly(DateTime.now());
+    final date = controller.selectedDate.isBefore(today)
+        ? today
+        : controller.selectedDate;
     return AppScaffold(
       bottom: AppButton(
         label: 'Next',
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const SelectTimePartyScreen()),
-        ),
+        onPressed: () {
+          // Keep the controller in sync if the date was clamped above and
+          // the user didn't tap a day themselves.
+          if (controller.selectedDate.isBefore(today)) {
+            controller.selectDate(today);
+          }
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const SelectTimePartyScreen()),
+          );
+        },
       ),
       child: ListView(
         children: [
@@ -30,8 +42,8 @@ class SelectDateScreen extends StatelessWidget {
           const SizedBox(height: 24),
           CalendarDatePicker(
             initialDate: date,
-            firstDate: DateTime.now(),
-            lastDate: DateTime.now().add(const Duration(days: 365)),
+            firstDate: today,
+            lastDate: today.add(const Duration(days: 365)),
             onDateChanged: controller.selectDate,
           ),
           const SizedBox(height: 28),
